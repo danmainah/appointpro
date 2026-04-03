@@ -16,14 +16,16 @@ import {
   Users,
   DollarSign,
   ArrowRight,
+  Scissors,
+  Star,
 } from "lucide-react";
 import { connectDB } from "@/lib/db";
 
 function formatPrice(price: number, currency: string) {
   if (currency === "KES") {
-    return `KES ${price.toLocaleString("en-KE")}`;
+    return `KSh ${price.toLocaleString("en-KE")}`;
   }
-  return `$${price.toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
+  return `KSh ${price.toLocaleString("en-KE")}`;
 }
 
 export default async function HomePage() {
@@ -67,18 +69,31 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-slate-900 to-slate-800 text-white">
-        <div className="max-w-5xl mx-auto px-4 py-24 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
+      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 text-white">
+        {/* Decorative elements */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-purple-500 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-400 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "2s" }} />
+        </div>
+
+        <div className="relative max-w-5xl mx-auto px-4 py-28 text-center">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-6 text-sm">
+            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+            Open for bookings
+          </div>
+
+          <h1 className="text-5xl md:text-7xl font-extrabold mb-4 leading-tight tracking-tight">
             {professional.name}
           </h1>
           {professional.title && (
-            <p className="text-xl md:text-2xl text-blue-400 font-medium mb-6">
+            <p className="text-xl md:text-2xl text-blue-300 font-medium mb-6">
               {professional.title}
             </p>
           )}
           {professional.bio && (
-            <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-6 line-clamp-3">
+            <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-6 leading-relaxed line-clamp-3">
               {professional.bio}
             </p>
           )}
@@ -88,15 +103,44 @@ export default async function HomePage() {
               <span>{professional.location}</span>
             </div>
           )}
-          <Link href="/book">
-            <Button
-              size="lg"
-              className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-6"
-            >
-              Book Appointment
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/book">
+              <Button
+                size="lg"
+                className="bg-blue-600 hover:bg-blue-500 text-lg px-8 py-6 shadow-lg shadow-blue-600/25 transition-all hover:shadow-blue-500/40 hover:scale-105"
+              >
+                Book Appointment
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </Link>
+            <Link href="#services">
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-lg px-8 py-6 border-white/30 text-white hover:bg-white/10"
+              >
+                View Services
+              </Button>
+            </Link>
+          </div>
+
+          {/* Quick stats */}
+          {services.length > 0 && (
+            <div className="flex items-center justify-center gap-8 mt-14 text-sm text-slate-400">
+              <div className="flex items-center gap-2">
+                <Scissors className="w-4 h-4" />
+                <span>{services.length} services</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                <span>Mon - Sat</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                <span>{professional.location}</span>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

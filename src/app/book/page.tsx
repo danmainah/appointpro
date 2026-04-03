@@ -40,11 +40,10 @@ interface Professional {
   paymentRequired: boolean;
 }
 
-type Step = "service" | "date" | "time" | "details";
+type Step = "service" | "date" | "time" | "details" | "payment";
 
 function formatPrice(price: number, currency: string) {
-  if (currency === "KES") return `KES ${price.toLocaleString("en-KE")}`;
-  return `$${price.toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
+  return `KSh ${price.toLocaleString("en-KE")}`;
 }
 
 function BookingFlow() {
@@ -70,6 +69,19 @@ function BookingFlow() {
     clientPhone: "",
     notes: "",
   });
+
+  const [paymentData, setPaymentData] = useState({
+    cardNumber: "",
+    expiry: "",
+    cvv: "",
+    cardName: "",
+  });
+  const [processingPayment, setProcessingPayment] = useState(false);
+
+  const requiresPayment =
+    professional?.paymentRequired &&
+    selectedService &&
+    selectedService.price > 0;
 
   // Load professional and services
   useEffect(() => {
@@ -131,6 +143,7 @@ function BookingFlow() {
           clientEmail: formData.clientEmail,
           clientPhone: formData.clientPhone || undefined,
           notes: formData.notes || undefined,
+          demoPaid: requiresPayment ? true : undefined,
         }),
       });
 
@@ -215,6 +228,7 @@ function BookingFlow() {
     { key: "date", label: "Date" },
     { key: "time", label: "Time" },
     { key: "details", label: "Details" },
+    ...(requiresPayment ? [{ key: "payment" as Step, label: "Payment" }] : []),
   ];
   const currentStepIndex = steps.findIndex((s) => s.key === step);
 
@@ -485,15 +499,136 @@ function BookingFlow() {
                 disabled={
                   !formData.clientName || !formData.clientEmail || submitting
                 }
-                onClick={handleSubmitBooking}
+                onClick={() => {
+                  if (requiresPayment) {
+                    setStep("payment");
+                  } else {
+                    handleSubmitBooking();
+                  }
+                }}
               >
                 {submitting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Booking...
                   </>
+                ) : requiresPayment ? (
+                  "Continue to Payment"
                 ) : (
                   "Confirm Booking"
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 5: Payment (demo) */}
+        {step === "payment" && (
+          <div>
+            <h2 className="text-xl font-semibold mb-1">Payment</h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Pay{" "}
+              <strong>
+                {selectedService
+                  ? formatPrice(selectedService.price, selectedService.currency)
+                  : ""}
+              </strong>{" "}
+              for {selectedService?.name}
+            </p>
+
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4 text-sm text-yellow-800">
+              Demo mode — enter any card details to simulate payment.
+            </div>
+
+            <div className="bg-white rounded-xl border p-5 space-y-4">
+              <div>
+                <Label htmlFor="cardName">Name on Card</Label>
+                <Input
+                  id="cardName"
+                  value={paymentData.cardName}
+                  onChange={(e) =>
+                    setPaymentData({ ...paymentData, cardName: e.target.value })
+                  }
+                  placeholder="John Doe"
+                />
+              </div>
+              <div>
+                <Label htmlFor="cardNumber">Card Number</Label>
+                <Input
+                  id="cardNumber"
+                  value={paymentData.cardNumber}
+                  onChange={(e) => {
+                    const v = e.target.value.replace(/\D/g, "").slice(0, 16);
+                    const formatted = v.replace(/(\d{4})(?=\d)/g, "$1 ");
+                    setPaymentData({ ...paymentData, cardNumber: formatted });
+                  }}
+                  placeholder="4242 4242 4242 4242"
+                  maxLength={19}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="expiry">Expiry</Label>
+                  <Input
+                    id="expiry"
+                    value={paymentData.expiry}
+                    onChange={(e) => {
+                      let v = e.target.value.replace(/\D/g, "").slice(0, 4);
+                      if (v.length >= 3) v = v.slice(0, 2) + "/" + v.slice(2);
+                      setPaymentData({ ...paymentData, expiry: v });
+                    }}
+                    placeholder="MM/YY"
+                    maxLength={5}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="cvv">CVV</Label>
+                  <Input
+                    id="cvv"
+                    value={paymentData.cvv}
+                    onChange={(e) =>
+                      setPaymentData({
+                        ...paymentData,
+                        cvv: e.target.value.replace(/\D/g, "").slice(0, 4),
+                      })
+                    }
+                    placeholder="123"
+                    maxLength={4}
+                  />
+                </div>
+              </div>
+
+              <Button
+                className="w-full bg-green-600 hover:bg-green-700"
+                size="lg"
+                disabled={
+                  !paymentData.cardNumber ||
+                  !paymentData.expiry ||
+                  !paymentData.cvv ||
+                  processingPayment ||
+                  submitting
+                }
+                onClick={async () => {
+                  setProcessingPayment(true);
+                  // Simulate payment processing
+                  await new Promise((r) => setTimeout(r, 1500));
+                  setProcessingPayment(false);
+                  // Submit booking with payment marked as paid
+                  handleSubmitBooking();
+                }}
+              >
+                {processingPayment ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Processing payment...
+                  </>
+                ) : submitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Creating booking...
+                  </>
+                ) : (
+                  `Pay ${selectedService ? formatPrice(selectedService.price, selectedService.currency) : ""} & Book`
                 )}
               </Button>
             </div>

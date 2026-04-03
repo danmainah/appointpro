@@ -102,7 +102,10 @@ export async function POST(req: NextRequest) {
       status: "confirmed",
       notes: data.notes || null,
       paymentRequired: professional.paymentRequired && service.price > 0,
-      paymentStatus: professional.paymentRequired && service.price > 0 ? "pending" : "none",
+      paymentStatus:
+        professional.paymentRequired && service.price > 0
+          ? data.demoPaid ? "paid" : "pending"
+          : "none",
       accessToken,
     });
 

@@ -68,6 +68,7 @@ export const createBookingSchema = z.object({
   notes: z.string().optional(),
   paymentIntentId: z.string().optional(),
   mpesaCheckoutRequestId: z.string().optional(),
+  demoPaid: z.boolean().optional(),
 });
 
 export const updateBookingStatusSchema = z.object({
