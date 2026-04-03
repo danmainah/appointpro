@@ -1,9 +1,12 @@
 import { Resend } from "resend";
 
-const API_KEY = process.env.RESEND_API_KEY || "";
-const IS_DEMO = !API_KEY || API_KEY.startsWith("re_placeholder");
+function getResendClient() {
+  const key = process.env.RESEND_API_KEY || "";
+  if (!key || key.startsWith("re_placeholder")) return null;
+  return new Resend(key);
+}
 
-export const resend = new Resend(API_KEY);
+const IS_DEMO = !process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.startsWith("re_placeholder");
 
 const FROM_EMAIL = process.env.EMAIL_FROM || "onboarding@resend.dev";
 
@@ -28,6 +31,7 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
   if (IS_DEMO) return demoLog("confirmation", data.clientEmail, `Booking Confirmed - ${data.serviceName}`);
   const confirmationUrl = `${process.env.NEXTAUTH_URL}/booking/confirmation?token=${data.accessToken}`;
 
+  const resend = getResendClient()!;
   return resend.emails.send({
     from: FROM_EMAIL,
     to: data.clientEmail,
@@ -59,6 +63,7 @@ export async function sendBookingReminder(data: BookingEmailData) {
   if (IS_DEMO) return demoLog("reminder", data.clientEmail, `Reminder - ${data.serviceName}`);
   const confirmationUrl = `${process.env.NEXTAUTH_URL}/booking/confirmation?token=${data.accessToken}`;
 
+  const resend = getResendClient()!;
   return resend.emails.send({
     from: FROM_EMAIL,
     to: data.clientEmail,
@@ -92,6 +97,7 @@ export async function sendBookingFollowUp(
   >
 ) {
   if (IS_DEMO) return demoLog("follow-up", data.clientEmail, `Follow-up - ${data.serviceName}`);
+  const resend = getResendClient()!;
   return resend.emails.send({
     from: FROM_EMAIL,
     to: data.clientEmail,
@@ -121,6 +127,7 @@ export async function sendEventRegistrationConfirmation(data: {
   accessToken: string;
 }) {
   if (IS_DEMO) return demoLog("event registration", data.clientEmail, `Registration - ${data.eventTitle}`);
+  const resend = getResendClient()!;
   return resend.emails.send({
     from: FROM_EMAIL,
     to: data.clientEmail,
