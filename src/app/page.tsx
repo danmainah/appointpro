@@ -25,28 +25,19 @@ function formatPrice(price: number) {
   return `KSh ${price.toLocaleString("en-KE")}`;
 }
 
-// Service images from Unsplash (barber/grooming themed)
+// Service images (barber/grooming themed)
 const SERVICE_IMAGES: Record<string, string> = {
-  "Classic Haircut":
-    "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=400&h=300&fit=crop",
-  "Haircut & Beard Trim":
-    "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400&h=300&fit=crop",
-  "Hot Towel Shave":
-    "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&h=300&fit=crop",
-  "Beard Grooming":
-    "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=400&h=300&fit=crop",
-  "Kids Haircut":
-    "https://images.unsplash.com/photo-1585747860019-8901c2e5319f?w=400&h=300&fit=crop",
-  "Full Grooming Package":
-    "https://images.unsplash.com/photo-1585747860019-8901c2e5319f?w=400&h=300&fit=crop",
+  "Classic Haircut": "/images/classic-haircut.jpg",
+  "Haircut & Beard Trim": "/images/haircut-beard.jpg",
+  "Hot Towel Shave": "/images/hot-towel.jpg",
+  "Beard Grooming": "/images/beard-grooming.jpg",
+  "Kids Haircut": "/images/kids-haircut.jpg",
+  "Full Grooming Package": "/images/full-package.jpg",
 };
 
-const HERO_IMAGE =
-  "https://images.unsplash.com/photo-1585747860019-8901c2e5319f?w=1200&h=800&fit=crop";
-const SHOP_IMAGE =
-  "https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=800&h=600&fit=crop";
-const DEFAULT_SERVICE_IMAGE =
-  "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=400&h=300&fit=crop";
+const HERO_IMAGE = "/images/about.jpg";
+const SHOP_IMAGE = "/images/hero.jpg";
+const DEFAULT_SERVICE_IMAGE = "/images/classic-haircut.jpg";
 
 export default async function HomePage() {
   await connectDB();
