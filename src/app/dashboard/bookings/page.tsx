@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CalendarCheck, Eye, Check, X, CheckCircle2 } from "lucide-react";
+import { CalendarCheck, Eye, Check, X, CheckCircle2, Loader2 } from "lucide-react";
 
 interface Booking {
   _id: string;
@@ -48,31 +48,43 @@ const statusColors: Record<string, string> = {
 };
 
 export default function BookingsPage() {
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>("all");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState(false);
 
   const fetchBookings = useCallback(async () => {
     setLoading(true);
+    setFetchError(false);
     try {
       const params = new URLSearchParams();
       if (activeTab !== "all") params.set("status", activeTab);
       const res = await fetch(`/api/bookings?${params.toString()}`);
-      if (!res.ok) throw new Error("Failed to fetch bookings");
+      if (!res.ok) {
+        if (res.status === 401) {
+          // Session not ready yet — will retry when session updates
+          setFetchError(true);
+          return;
+        }
+        throw new Error("Failed to fetch");
+      }
       const data = await res.json();
-      setBookings(data.bookings);
+      setBookings(data.bookings || []);
     } catch {
-      toast.error("Failed to load bookings");
+      setFetchError(true);
     } finally {
       setLoading(false);
     }
   }, [activeTab]);
 
+  // Wait for session to be ready before fetching
   useEffect(() => {
-    if (session) fetchBookings();
-  }, [session, fetchBookings]);
+    if (sessionStatus === "authenticated") {
+      fetchBookings();
+    }
+  }, [sessionStatus, fetchBookings]);
 
   async function updateStatus(bookingId: string, status: string) {
     setUpdatingId(bookingId);
@@ -90,6 +102,23 @@ export default function BookingsPage() {
     } finally {
       setUpdatingId(null);
     }
+  }
+
+  // Show loading while session is being established
+  if (sessionStatus === "loading") {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Bookings</h1>
+          <p className="text-muted-foreground">Loading your bookings...</p>
+        </div>
+        <div className="space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-12 w-full" />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -116,6 +145,16 @@ export default function BookingsPage() {
           {Array.from({ length: 5 }).map((_, i) => (
             <Skeleton key={i} className="h-12 w-full" />
           ))}
+        </div>
+      ) : fetchError ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <p className="text-sm text-muted-foreground mb-4">
+            Unable to load bookings. Please try again.
+          </p>
+          <Button onClick={fetchBookings} variant="outline">
+            <Loader2 className="w-4 h-4 mr-2" />
+            Retry
+          </Button>
         </div>
       ) : bookings.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
