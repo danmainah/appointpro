@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/db";
 import { clientRegisterSchema } from "@/lib/validations";
-import Client from "@/models/Client";
 
 export async function POST(request: Request) {
   try {
@@ -20,6 +19,7 @@ export async function POST(request: Request) {
     const { name, email, password, phone } = parsed.data;
 
     await connectDB();
+    const { default: Client } = await import("@/models/Client");
 
     // Check if a registered client with this email already exists
     const existingRegistered = await Client.findOne({

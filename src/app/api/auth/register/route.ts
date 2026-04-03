@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/db";
 import { registerSchema } from "@/lib/validations";
-import User from "@/models/User";
 
 function generateSlug(name: string): string {
   const base = name
@@ -31,6 +30,7 @@ export async function POST(request: Request) {
     const { name, email, password, title, category } = parsed.data;
 
     await connectDB();
+    const { default: User } = await import("@/models/User");
 
     // Check if email already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
