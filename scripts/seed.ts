@@ -9,7 +9,6 @@ async function seed() {
   await mongoose.connect(MONGODB_URI);
   console.log("✅ Connected\n");
 
-  // Import models
   const { default: User } = await import("../src/models/User");
   const { default: Client } = await import("../src/models/Client");
   const { default: Service } = await import("../src/models/Service");
@@ -17,7 +16,6 @@ async function seed() {
   const { default: Booking } = await import("../src/models/Booking");
   const { default: Event } = await import("../src/models/Event");
 
-  // Clear existing data
   console.log("🗑️  Clearing existing data...");
   await Promise.all([
     User.deleteMany({}),
@@ -28,162 +26,106 @@ async function seed() {
     Event.deleteMany({}),
   ]);
 
-  // --- PROFESSIONALS ---
-  console.log("👤 Creating professionals...");
+  // --- THE PROFESSIONAL (site owner) ---
+  console.log("👤 Creating professional...");
   const password = await bcrypt.hash("password123", 10);
 
-  const professionals = await User.insertMany([
-    {
-      name: "Dr. Sarah Mitchell",
-      email: "sarah@demo.com",
-      password,
-      slug: "dr-sarah-mitchell",
-      title: "Licensed Therapist & Counselor",
-      bio: "With over 15 years of experience in cognitive behavioral therapy, I help individuals overcome anxiety, depression, and relationship challenges. My approach is warm, evidence-based, and tailored to each client's unique needs.",
-      phone: "+254 712 345 678",
-      location: "Nairobi, Kenya",
-      category: "therapy",
-      timezone: "Africa/Nairobi",
-      paymentRequired: true,
-      isActive: true,
-      isVerified: true,
-    },
-    {
-      name: "James Kariuki",
-      email: "james@demo.com",
-      password,
-      slug: "james-kariuki",
-      title: "Business Strategy Consultant",
-      bio: "I help startups and SMEs develop actionable growth strategies. Specializing in market entry, fundraising preparation, and operational efficiency across East Africa.",
-      phone: "+254 723 456 789",
-      location: "Nairobi, Kenya",
-      category: "consulting",
-      timezone: "Africa/Nairobi",
-      paymentRequired: true,
-      isActive: true,
-      isVerified: true,
-    },
-    {
-      name: "Amina Hassan",
-      email: "amina@demo.com",
-      password,
-      slug: "amina-hassan",
-      title: "Family Law Attorney",
-      bio: "Experienced family law attorney specializing in divorce, custody, and estate planning. I provide compassionate legal guidance through life's most challenging transitions.",
-      phone: "+254 734 567 890",
-      location: "Mombasa, Kenya",
-      category: "legal",
-      timezone: "Africa/Nairobi",
-      paymentRequired: false,
-      isActive: true,
-      isVerified: true,
-    },
-    {
-      name: "Kevin Ochieng",
-      email: "kevin@demo.com",
-      password,
-      slug: "kevin-ochieng",
-      title: "Certified Personal Trainer",
-      bio: "Transform your body and mind with personalized fitness programs. Whether you're a beginner or athlete, I'll design a plan that fits your goals and lifestyle.",
-      phone: "+254 745 678 901",
-      location: "Nairobi, Kenya",
-      category: "fitness",
-      timezone: "Africa/Nairobi",
-      paymentRequired: true,
-      isActive: true,
-      isVerified: true,
-    },
-    {
-      name: "Grace Wanjiku",
-      email: "grace@demo.com",
-      password,
-      slug: "grace-wanjiku",
-      title: "Senior Hairstylist & Beauty Expert",
-      bio: "Award-winning hairstylist with 8 years of experience in braids, locs, natural hair care, and modern cuts. Your hair is your crown — let me help you wear it proudly.",
-      phone: "+254 756 789 012",
-      location: "Westlands, Nairobi",
-      category: "beauty",
-      timezone: "Africa/Nairobi",
-      paymentRequired: true,
-      isActive: true,
-      isVerified: true,
-    },
-    {
-      name: "Dr. Peter Mwangi",
-      email: "peter@demo.com",
-      password,
-      slug: "dr-peter-mwangi",
-      title: "General Practitioner",
-      bio: "Providing comprehensive primary healthcare services including general check-ups, chronic disease management, and preventive care. Your health, my priority.",
-      phone: "+254 767 890 123",
-      location: "Karen, Nairobi",
-      category: "health",
-      timezone: "Africa/Nairobi",
-      paymentRequired: true,
-      isActive: true,
-      isVerified: true,
-    },
-  ]);
+  const professional = await User.create({
+    name: "Dan's Barber Shop",
+    email: "admin@demo.com",
+    password,
+    slug: "dan-barber",
+    title: "Premium Grooming & Barbering Services",
+    bio: "Welcome to Dan's Barber Shop — Nairobi's finest grooming destination. With over 8 years of experience, we specialize in classic cuts, modern styles, beard grooming, and hot towel shaves. Walk in looking good, walk out looking great.\n\nOur shop offers a relaxed atmosphere where you can unwind while getting a fresh look. We use premium products and stay up to date with the latest trends in men's grooming.",
+    phone: "+254 712 345 678",
+    location: "Westlands, Nairobi",
+    category: "beauty",
+    timezone: "Africa/Nairobi",
+    paymentRequired: true,
+    isActive: true,
+    isVerified: true,
+  });
 
-  console.log(`   Created ${professionals.length} professionals`);
+  console.log("   ✅ Professional created");
 
   // --- SERVICES ---
   console.log("💼 Creating services...");
-  const servicesData = [
-    // Sarah - Therapy
-    { professionalId: professionals[0]._id, name: "Initial Consultation", description: "60-minute introductory session to discuss your goals and create a treatment plan.", duration: 60, price: 5000, currency: "KES", sortOrder: 0 },
-    { professionalId: professionals[0]._id, name: "Individual Therapy Session", description: "Standard 50-minute one-on-one therapy session.", duration: 50, price: 4000, currency: "KES", sortOrder: 1 },
-    { professionalId: professionals[0]._id, name: "Couples Counseling", description: "90-minute session for couples working through relationship challenges.", duration: 90, price: 7000, currency: "KES", sortOrder: 2 },
-
-    // James - Consulting
-    { professionalId: professionals[1]._id, name: "Strategy Discovery Call", description: "Free 30-minute call to understand your business needs.", duration: 30, price: 0, currency: "KES", sortOrder: 0 },
-    { professionalId: professionals[1]._id, name: "Business Strategy Session", description: "Deep-dive 2-hour session on your business growth strategy.", duration: 120, price: 15000, currency: "KES", sortOrder: 1 },
-    { professionalId: professionals[1]._id, name: "Pitch Deck Review", description: "1-hour review and feedback on your investor pitch deck.", duration: 60, price: 8000, currency: "KES", sortOrder: 2 },
-
-    // Amina - Legal
-    { professionalId: professionals[2]._id, name: "Free Legal Consultation", description: "30-minute initial consultation to discuss your case.", duration: 30, price: 0, currency: "KES", sortOrder: 0 },
-    { professionalId: professionals[2]._id, name: "Legal Advisory Session", description: "1-hour detailed legal advisory session.", duration: 60, price: 5000, currency: "KES", sortOrder: 1 },
-
-    // Kevin - Fitness
-    { professionalId: professionals[3]._id, name: "Fitness Assessment", description: "45-minute initial assessment including body composition and fitness level evaluation.", duration: 45, price: 2000, currency: "KES", sortOrder: 0 },
-    { professionalId: professionals[3]._id, name: "Personal Training Session", description: "1-hour personal training session tailored to your goals.", duration: 60, price: 3000, currency: "KES", sortOrder: 1 },
-    { professionalId: professionals[3]._id, name: "Nutrition Consultation", description: "45-minute nutrition planning and meal prep guidance.", duration: 45, price: 2500, currency: "KES", sortOrder: 2 },
-
-    // Grace - Beauty
-    { professionalId: professionals[4]._id, name: "Haircut & Styling", description: "Precision cut and professional styling.", duration: 60, price: 2000, currency: "KES", sortOrder: 0 },
-    { professionalId: professionals[4]._id, name: "Braids & Twists", description: "Full head braids or twists — various styles available.", duration: 180, price: 5000, currency: "KES", sortOrder: 1 },
-    { professionalId: professionals[4]._id, name: "Hair Treatment", description: "Deep conditioning, protein treatment, or scalp treatment.", duration: 90, price: 3500, currency: "KES", sortOrder: 2 },
-
-    // Peter - Health
-    { professionalId: professionals[5]._id, name: "General Check-up", description: "Comprehensive general health examination.", duration: 30, price: 3000, currency: "KES", sortOrder: 0 },
-    { professionalId: professionals[5]._id, name: "Follow-up Visit", description: "Follow-up appointment for ongoing treatment.", duration: 20, price: 2000, currency: "KES", sortOrder: 1 },
-  ];
-
-  const services = await Service.insertMany(servicesData);
-  console.log(`   Created ${services.length} services`);
+  const services = await Service.insertMany([
+    {
+      professionalId: professional._id,
+      name: "Classic Haircut",
+      description: "Precision cut with clippers and scissors. Includes wash and style.",
+      duration: 30,
+      price: 800,
+      currency: "KES",
+      sortOrder: 0,
+    },
+    {
+      professionalId: professional._id,
+      name: "Haircut & Beard Trim",
+      description: "Full haircut plus beard shaping and trim. Our most popular combo.",
+      duration: 45,
+      price: 1200,
+      currency: "KES",
+      sortOrder: 1,
+    },
+    {
+      professionalId: professional._id,
+      name: "Hot Towel Shave",
+      description: "Luxurious straight-razor shave with hot towel treatment and aftershave balm.",
+      duration: 30,
+      price: 1000,
+      currency: "KES",
+      sortOrder: 2,
+    },
+    {
+      professionalId: professional._id,
+      name: "Beard Grooming",
+      description: "Beard wash, conditioning, trim, and shaping. Keep your beard looking sharp.",
+      duration: 20,
+      price: 600,
+      currency: "KES",
+      sortOrder: 3,
+    },
+    {
+      professionalId: professional._id,
+      name: "Kids Haircut",
+      description: "Gentle haircut for children under 12. Patient and kid-friendly service.",
+      duration: 20,
+      price: 500,
+      currency: "KES",
+      sortOrder: 4,
+    },
+    {
+      professionalId: professional._id,
+      name: "Full Grooming Package",
+      description: "The works — haircut, beard trim, hot towel shave, and scalp massage. Walk out feeling like a new man.",
+      duration: 75,
+      price: 2500,
+      currency: "KES",
+      sortOrder: 5,
+    },
+  ]);
+  console.log(`   ✅ Created ${services.length} services`);
 
   // --- AVAILABILITY ---
-  console.log("📅 Creating availability schedules...");
-  const defaultSchedule = [
-    { day: 0, enabled: false, slots: [] }, // Sunday
-    { day: 1, enabled: true, slots: [{ start: "09:00", end: "12:00" }, { start: "14:00", end: "17:00" }] },
-    { day: 2, enabled: true, slots: [{ start: "09:00", end: "12:00" }, { start: "14:00", end: "17:00" }] },
-    { day: 3, enabled: true, slots: [{ start: "09:00", end: "12:00" }, { start: "14:00", end: "17:00" }] },
-    { day: 4, enabled: true, slots: [{ start: "09:00", end: "12:00" }, { start: "14:00", end: "17:00" }] },
-    { day: 5, enabled: true, slots: [{ start: "09:00", end: "12:00" }, { start: "14:00", end: "17:00" }] },
-    { day: 6, enabled: true, slots: [{ start: "10:00", end: "14:00" }] }, // Saturday half-day
-  ];
-
-  await Availability.insertMany(
-    professionals.map((pro) => ({
-      professionalId: pro._id,
-      timezone: "Africa/Nairobi",
-      weeklySchedule: defaultSchedule,
-      overrides: [],
-      bufferMinutes: 15,
-    }))
-  );
-  console.log(`   Created ${professionals.length} availability schedules`);
+  console.log("📅 Creating availability...");
+  await Availability.create({
+    professionalId: professional._id,
+    timezone: "Africa/Nairobi",
+    weeklySchedule: [
+      { day: 0, enabled: false, slots: [] }, // Sunday off
+      { day: 1, enabled: true, slots: [{ start: "08:00", end: "12:00" }, { start: "13:00", end: "18:00" }] },
+      { day: 2, enabled: true, slots: [{ start: "08:00", end: "12:00" }, { start: "13:00", end: "18:00" }] },
+      { day: 3, enabled: true, slots: [{ start: "08:00", end: "12:00" }, { start: "13:00", end: "18:00" }] },
+      { day: 4, enabled: true, slots: [{ start: "08:00", end: "12:00" }, { start: "13:00", end: "18:00" }] },
+      { day: 5, enabled: true, slots: [{ start: "08:00", end: "12:00" }, { start: "13:00", end: "18:00" }] },
+      { day: 6, enabled: true, slots: [{ start: "09:00", end: "15:00" }] }, // Saturday shorter
+    ],
+    overrides: [],
+    bufferMinutes: 10,
+  });
+  console.log("   ✅ Availability set");
 
   // --- DEMO CLIENTS ---
   console.log("👥 Creating demo clients...");
@@ -191,154 +133,101 @@ async function seed() {
     { name: "John Kamau", email: "john@example.com", phone: "+254 700 111 222", isRegistered: false },
     { name: "Mary Otieno", email: "mary@example.com", phone: "+254 700 333 444", isRegistered: false },
     { name: "David Njoroge", email: "david@example.com", phone: "+254 700 555 666", isRegistered: false },
-    { name: "Lucy Akinyi", email: "lucy@example.com", phone: "+254 700 777 888", isRegistered: false },
-    { name: "Michael Wafula", email: "michael@example.com", phone: "+254 700 999 000", isRegistered: false },
+    { name: "Peter Mwangi", email: "peter@example.com", phone: "+254 700 777 888", isRegistered: false },
   ]);
-  console.log(`   Created ${clients.length} clients`);
+  console.log(`   ✅ Created ${clients.length} clients`);
 
   // --- DEMO BOOKINGS ---
   console.log("📋 Creating demo bookings...");
   const today = new Date();
-  const formatDate = (d: Date) => d.toISOString().split("T")[0];
+  const fmt = (d: Date) => d.toISOString().split("T")[0];
   const addDays = (d: Date, n: number) => new Date(d.getTime() + n * 86400000);
 
-  const bookings = await Booking.insertMany([
-    // Today's bookings for Sarah
+  await Booking.insertMany([
     {
-      professionalId: professionals[0]._id, clientId: clients[0]._id, serviceId: services[0]._id,
+      professionalId: professional._id, clientId: clients[0]._id, serviceId: services[0]._id,
       clientName: "John Kamau", clientEmail: "john@example.com", clientPhone: "+254 700 111 222",
-      date: formatDate(today), startTime: "09:00", endTime: "10:00", duration: 60,
+      date: fmt(today), startTime: "09:00", endTime: "09:30", duration: 30,
       status: "confirmed", paymentRequired: true, paymentStatus: "paid",
       accessToken: crypto.randomUUID(),
     },
     {
-      professionalId: professionals[0]._id, clientId: clients[1]._id, serviceId: services[1]._id,
+      professionalId: professional._id, clientId: clients[1]._id, serviceId: services[1]._id,
       clientName: "Mary Otieno", clientEmail: "mary@example.com", clientPhone: "+254 700 333 444",
-      date: formatDate(today), startTime: "14:00", endTime: "14:50", duration: 50,
+      date: fmt(today), startTime: "14:00", endTime: "14:45", duration: 45,
       status: "confirmed", paymentRequired: true, paymentStatus: "paid",
       accessToken: crypto.randomUUID(),
     },
-    // Tomorrow
     {
-      professionalId: professionals[0]._id, clientId: clients[2]._id, serviceId: services[2]._id,
+      professionalId: professional._id, clientId: clients[2]._id, serviceId: services[5]._id,
       clientName: "David Njoroge", clientEmail: "david@example.com",
-      date: formatDate(addDays(today, 1)), startTime: "10:00", endTime: "11:30", duration: 90,
+      date: fmt(addDays(today, 1)), startTime: "10:00", endTime: "11:15", duration: 75,
       status: "pending", paymentRequired: true, paymentStatus: "pending",
       accessToken: crypto.randomUUID(),
     },
-    // James's bookings
     {
-      professionalId: professionals[1]._id, clientId: clients[3]._id, serviceId: services[4]._id,
-      clientName: "Lucy Akinyi", clientEmail: "lucy@example.com", clientPhone: "+254 700 777 888",
-      date: formatDate(addDays(today, 2)), startTime: "09:00", endTime: "11:00", duration: 120,
+      professionalId: professional._id, clientId: clients[3]._id, serviceId: services[0]._id,
+      clientName: "Peter Mwangi", clientEmail: "peter@example.com",
+      date: fmt(addDays(today, 2)), startTime: "08:00", endTime: "08:30", duration: 30,
       status: "confirmed", paymentRequired: true, paymentStatus: "paid",
       accessToken: crypto.randomUUID(),
     },
-    // Kevin's bookings
+    // Past completed
     {
-      professionalId: professionals[3]._id, clientId: clients[4]._id, serviceId: services[10]._id,
-      clientName: "Michael Wafula", clientEmail: "michael@example.com",
-      date: formatDate(addDays(today, 1)), startTime: "15:00", endTime: "16:00", duration: 60,
-      status: "confirmed", paymentRequired: true, paymentStatus: "paid",
-      accessToken: crypto.randomUUID(),
-    },
-    // Past completed bookings
-    {
-      professionalId: professionals[0]._id, clientId: clients[0]._id, serviceId: services[1]._id,
+      professionalId: professional._id, clientId: clients[0]._id, serviceId: services[1]._id,
       clientName: "John Kamau", clientEmail: "john@example.com",
-      date: formatDate(addDays(today, -3)), startTime: "09:00", endTime: "09:50", duration: 50,
+      date: fmt(addDays(today, -2)), startTime: "09:00", endTime: "09:45", duration: 45,
       status: "completed", paymentRequired: true, paymentStatus: "paid",
       accessToken: crypto.randomUUID(),
     },
     {
-      professionalId: professionals[0]._id, clientId: clients[1]._id, serviceId: services[1]._id,
+      professionalId: professional._id, clientId: clients[1]._id, serviceId: services[2]._id,
       clientName: "Mary Otieno", clientEmail: "mary@example.com",
-      date: formatDate(addDays(today, -7)), startTime: "14:00", endTime: "14:50", duration: 50,
+      date: fmt(addDays(today, -5)), startTime: "11:00", endTime: "11:30", duration: 30,
       status: "completed", paymentRequired: true, paymentStatus: "paid",
-      accessToken: crypto.randomUUID(),
-    },
-    // Grace's booking
-    {
-      professionalId: professionals[4]._id, clientId: clients[3]._id, serviceId: services[12]._id,
-      clientName: "Lucy Akinyi", clientEmail: "lucy@example.com",
-      date: formatDate(addDays(today, 3)), startTime: "10:00", endTime: "11:00", duration: 60,
-      status: "confirmed", paymentRequired: true, paymentStatus: "paid",
       accessToken: crypto.randomUUID(),
     },
   ]);
-  console.log(`   Created ${bookings.length} bookings`);
+  console.log("   ✅ Created 6 bookings");
 
   // --- EVENTS ---
-  console.log("🎉 Creating demo events...");
+  console.log("🎉 Creating events...");
   await Event.insertMany([
     {
-      professionalId: professionals[1]._id,
-      title: "Startup Fundraising Masterclass",
-      description: "Learn how to raise your first round of funding. We'll cover pitch deck creation, investor outreach, term sheets, and common mistakes to avoid. Includes Q&A session.",
-      date: formatDate(addDays(today, 14)),
-      startTime: "10:00",
-      endTime: "13:00",
-      location: "iHub Nairobi, 6th Floor",
-      maxAttendees: 30,
-      currentAttendees: 12,
-      price: 2500,
-      currency: "KES",
-      isActive: true,
-    },
-    {
-      professionalId: professionals[3]._id,
-      title: "Weekend Fitness Bootcamp",
-      description: "Intense 2-hour outdoor fitness bootcamp. Suitable for all fitness levels. Bring water, a mat, and your determination!",
-      date: formatDate(addDays(today, 7)),
-      startTime: "07:00",
-      endTime: "09:00",
-      location: "Uhuru Gardens, Nairobi",
-      maxAttendees: 20,
-      currentAttendees: 8,
-      price: 1000,
-      currency: "KES",
-      isActive: true,
-    },
-    {
-      professionalId: professionals[0]._id,
-      title: "Stress Management Workshop",
-      description: "A free online workshop on managing stress and anxiety in the workplace. Learn practical techniques including mindfulness, breathing exercises, and boundary-setting.",
-      date: formatDate(addDays(today, 10)),
-      startTime: "18:00",
-      endTime: "19:30",
-      meetingLink: "https://meet.google.com/demo-link",
-      location: "Online",
+      professionalId: professional._id,
+      title: "Grand Opening Week — 50% Off All Services",
+      description: "Celebrate our new location in Westlands! All services are half price for the entire opening week. First come, first served. Bring a friend and both get an extra 10% off.",
+      date: fmt(addDays(today, 7)),
+      startTime: "08:00",
+      endTime: "18:00",
+      location: "Dan's Barber Shop, Westlands",
       maxAttendees: 50,
-      currentAttendees: 23,
+      currentAttendees: 18,
       price: 0,
       currency: "KES",
       isActive: true,
     },
     {
-      professionalId: professionals[2]._id,
-      title: "Know Your Rights: Family Law Basics",
-      description: "Free public seminar covering basics of family law in Kenya — marriage, divorce, child custody, and inheritance rights.",
-      date: formatDate(addDays(today, 21)),
+      professionalId: professional._id,
+      title: "Men's Grooming Masterclass",
+      description: "Learn the basics of at-home grooming — beard maintenance, skin care routine, and how to communicate with your barber for the perfect cut. Refreshments provided.",
+      date: fmt(addDays(today, 14)),
       startTime: "14:00",
       endTime: "16:00",
-      location: "Mombasa Law Society Hall",
-      maxAttendees: 40,
-      currentAttendees: 5,
-      price: 0,
+      location: "Dan's Barber Shop, Westlands",
+      maxAttendees: 15,
+      currentAttendees: 6,
+      price: 500,
       currency: "KES",
       isActive: true,
     },
   ]);
-  console.log("   Created 4 events");
+  console.log("   ✅ Created 2 events");
 
   console.log("\n✅ Seed complete!\n");
-  console.log("Demo login credentials (all professionals):");
-  console.log("  Email: sarah@demo.com  |  Password: password123  (Therapist)");
-  console.log("  Email: james@demo.com  |  Password: password123  (Consultant)");
-  console.log("  Email: amina@demo.com  |  Password: password123  (Lawyer)");
-  console.log("  Email: kevin@demo.com  |  Password: password123  (Trainer)");
-  console.log("  Email: grace@demo.com  |  Password: password123  (Hairstylist)");
-  console.log("  Email: peter@demo.com  |  Password: password123  (Doctor)");
+  console.log("=== Admin Login ===");
+  console.log("  Email:    admin@demo.com");
+  console.log("  Password: password123");
   console.log("");
 
   await mongoose.disconnect();

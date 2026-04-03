@@ -15,7 +15,10 @@
       "Read(//c/tmp/**)",
       "Bash(unzip -o gh.zip -d /c/Users/USER/gh-cli/)",
       "Bash(/c/Users/USER/gh-cli/bin/gh.exe --version)",
-      "Bash(/c/Users/USER/gh-cli/bin/gh.exe auth:*)"
+      "Bash(/c/Users/USER/gh-cli/bin/gh.exe auth:*)",
+      "Bash(/c/Users/USER/gh-cli/bin/gh.exe repo:*)",
+      "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(32\\).toString\\('hex'\\)\\)\")",
+      "WebFetch(domain:appointpro-gray.vercel.app)"
     ]
   }
 }

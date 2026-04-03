@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { Menu, LogOut, LayoutDashboard, User } from "lucide-react";
+import { Menu, LogOut, LayoutDashboard, CalendarDays, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import {
@@ -16,8 +16,9 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const navLinks = [
-  { label: "Browse Professionals", href: "/professionals" },
-  { label: "Events", href: "/events" },
+  { label: "Services", href: "/#services" },
+  { label: "Events", href: "/#events" },
+  { label: "Book Now", href: "/book" },
 ];
 
 export function Header() {
@@ -33,6 +34,8 @@ export function Header() {
         .toUpperCase()
         .slice(0, 2)
     : "U";
+
+  const role = (user as Record<string, unknown>)?.role;
 
   return (
     <header className="sticky top-0 z-40 border-b bg-white/95 backdrop-blur">
@@ -68,14 +71,17 @@ export function Header() {
                 <span className="text-sm font-medium">{user.name}</span>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" sideOffset={8}>
-                <DropdownMenuItem render={<Link href="/dashboard" />}>
-                  <LayoutDashboard className="w-4 h-4 mr-2" />
-                  Dashboard
-                </DropdownMenuItem>
-                <DropdownMenuItem render={<Link href={`/professionals/${(user as Record<string, unknown>)?.slug ?? ""}`} />}>
-                  <User className="w-4 h-4 mr-2" />
-                  Public Profile
-                </DropdownMenuItem>
+                {role === "professional" ? (
+                  <DropdownMenuItem render={<Link href="/dashboard" />}>
+                    <LayoutDashboard className="w-4 h-4 mr-2" />
+                    Admin Panel
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem render={<Link href="/client-portal" />}>
+                    <CalendarDays className="w-4 h-4 mr-2" />
+                    My Bookings
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => signOut({ callbackUrl: "/" })}
@@ -87,9 +93,16 @@ export function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Link href="/login">
-              <Button>Login</Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/client/login">
+                <Button variant="ghost" className="text-sm">My Bookings</Button>
+              </Link>
+              <Link href="/book">
+                <Button className="bg-blue-600 hover:bg-blue-700 text-sm">
+                  Book Now
+                </Button>
+              </Link>
+            </div>
           )}
         </div>
 
@@ -118,13 +131,23 @@ export function Header() {
               ))}
               {user ? (
                 <>
-                  <Link
-                    href="/dashboard"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-sm font-medium"
-                  >
-                    Dashboard
-                  </Link>
+                  {role === "professional" ? (
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="text-sm font-medium"
+                    >
+                      Admin Panel
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/client-portal"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="text-sm font-medium"
+                    >
+                      My Bookings
+                    </Link>
+                  )}
                   <button
                     onClick={() => signOut({ callbackUrl: "/" })}
                     className="text-left text-sm font-medium text-red-600"
@@ -134,11 +157,11 @@ export function Header() {
                 </>
               ) : (
                 <Link
-                  href="/login"
+                  href="/client/login"
                   onClick={() => setMobileMenuOpen(false)}
                   className="text-sm font-medium"
                 >
-                  Login
+                  My Bookings
                 </Link>
               )}
             </nav>
