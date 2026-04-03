@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,19 +15,38 @@ import {
   Phone,
   CalendarDays,
   Users,
-  DollarSign,
   ArrowRight,
   Scissors,
   Star,
 } from "lucide-react";
 import { connectDB } from "@/lib/db";
 
-function formatPrice(price: number, currency: string) {
-  if (currency === "KES") {
-    return `KSh ${price.toLocaleString("en-KE")}`;
-  }
+function formatPrice(price: number) {
   return `KSh ${price.toLocaleString("en-KE")}`;
 }
+
+// Service images from Unsplash (barber/grooming themed)
+const SERVICE_IMAGES: Record<string, string> = {
+  "Classic Haircut":
+    "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=400&h=300&fit=crop",
+  "Haircut & Beard Trim":
+    "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400&h=300&fit=crop",
+  "Hot Towel Shave":
+    "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&h=300&fit=crop",
+  "Beard Grooming":
+    "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=400&h=300&fit=crop",
+  "Kids Haircut":
+    "https://images.unsplash.com/photo-1585747860019-8901c2e5319f?w=400&h=300&fit=crop",
+  "Full Grooming Package":
+    "https://images.unsplash.com/photo-1585747860019-8901c2e5319f?w=400&h=300&fit=crop",
+};
+
+const HERO_IMAGE =
+  "https://images.unsplash.com/photo-1585747860019-8901c2e5319f?w=1200&h=800&fit=crop";
+const SHOP_IMAGE =
+  "https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=800&h=600&fit=crop";
+const DEFAULT_SERVICE_IMAGE =
+  "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=400&h=300&fit=crop";
 
 export default async function HomePage() {
   await connectDB();
@@ -69,126 +89,148 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 text-white">
-        {/* Decorative elements */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-10 right-10 w-96 h-96 bg-purple-500 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-400 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "2s" }} />
+      <section className="relative overflow-hidden min-h-[600px] flex items-center">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <Image
+            src={SHOP_IMAGE}
+            alt="Barber shop"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-900/80 to-slate-900/60" />
         </div>
 
-        <div className="relative max-w-5xl mx-auto px-4 py-28 text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-6 text-sm">
-            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-            Open for bookings
-          </div>
-
-          <h1 className="text-5xl md:text-7xl font-extrabold mb-4 leading-tight tracking-tight">
-            {professional.name}
-          </h1>
-          {professional.title && (
-            <p className="text-xl md:text-2xl text-blue-300 font-medium mb-6">
-              {professional.title}
-            </p>
-          )}
-          {professional.bio && (
-            <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-6 leading-relaxed line-clamp-3">
-              {professional.bio}
-            </p>
-          )}
-          {professional.location && (
-            <div className="flex items-center justify-center gap-2 text-slate-400 mb-10">
-              <MapPin className="w-5 h-5" />
-              <span>{professional.location}</span>
+        <div className="relative max-w-6xl mx-auto px-4 py-24 w-full">
+          <div className="max-w-2xl">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-6 text-sm text-white">
+              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+              Open for bookings
             </div>
-          )}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/book">
-              <Button
-                size="lg"
-                className="bg-blue-600 hover:bg-blue-500 text-lg px-8 py-6 shadow-lg shadow-blue-600/25 transition-all hover:shadow-blue-500/40 hover:scale-105"
-              >
-                Book Appointment
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
-            <Link href="#services">
-              <Button
-                size="lg"
-                variant="outline"
-                className="text-lg px-8 py-6 border-white/30 text-white hover:bg-white/10"
-              >
-                View Services
-              </Button>
-            </Link>
-          </div>
 
-          {/* Quick stats */}
-          {services.length > 0 && (
-            <div className="flex items-center justify-center gap-8 mt-14 text-sm text-slate-400">
-              <div className="flex items-center gap-2">
-                <Scissors className="w-4 h-4" />
-                <span>{services.length} services</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                <span>Mon - Sat</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
+            <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-4 leading-tight tracking-tight">
+              {professional.name}
+            </h1>
+            {professional.title && (
+              <p className="text-xl md:text-2xl text-blue-300 font-medium mb-6">
+                {professional.title}
+              </p>
+            )}
+            {professional.bio && (
+              <p className="text-lg text-slate-300 mb-8 leading-relaxed line-clamp-3">
+                {professional.bio}
+              </p>
+            )}
+            {professional.location && (
+              <div className="flex items-center gap-2 text-slate-400 mb-8">
+                <MapPin className="w-5 h-5" />
                 <span>{professional.location}</span>
               </div>
+            )}
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link href="/book">
+                <Button
+                  size="lg"
+                  className="bg-blue-600 hover:bg-blue-500 text-lg px-8 py-6 shadow-lg shadow-blue-600/25 transition-all hover:shadow-blue-500/40 hover:scale-105"
+                >
+                  Book Appointment
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+              <Link href="#services">
+                <Button
+                  size="lg"
+                  className="bg-white/15 backdrop-blur-sm hover:bg-white/25 text-white text-lg px-8 py-6 border border-white/30"
+                >
+                  View Services
+                </Button>
+              </Link>
             </div>
-          )}
+
+            {/* Quick stats */}
+            {services.length > 0 && (
+              <div className="flex items-center gap-8 mt-12 text-sm text-slate-400">
+                <div className="flex items-center gap-2">
+                  <Scissors className="w-4 h-4" />
+                  <span>{services.length} services</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  <span>Mon - Sat</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Star className="w-4 h-4 text-yellow-400" />
+                  <span>5.0 rating</span>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
       {/* Services Section */}
       {services.length > 0 && (
-        <section className="py-20 bg-gray-50">
+        <section id="services" className="py-20 bg-gray-50">
           <div className="max-w-6xl mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-4">
-              Our Services
-            </h2>
-            <p className="text-gray-600 text-center mb-12 max-w-xl mx-auto">
-              Choose a service and book your appointment in seconds.
-            </p>
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-3">Our Services</h2>
+              <p className="text-gray-600 max-w-xl mx-auto">
+                Choose a service and book your appointment in seconds.
+              </p>
+            </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {services.map((service) => (
-                <Card key={String(service._id)} className="flex flex-col">
-                  <CardHeader>
-                    <CardTitle className="text-lg">{service.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex-1 flex flex-col gap-4">
-                    {service.description && (
-                      <p className="text-sm text-muted-foreground">
-                        {service.description}
-                      </p>
-                    )}
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
+              {services.map((service) => {
+                const imageUrl =
+                  SERVICE_IMAGES[service.name] || DEFAULT_SERVICE_IMAGE;
+                return (
+                  <Card
+                    key={String(service._id)}
+                    className="flex flex-col overflow-hidden group hover:shadow-lg transition-shadow"
+                  >
+                    {/* Service Image */}
+                    <div className="relative h-48 overflow-hidden">
+                      <Image
+                        src={imageUrl}
+                        alt={service.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      {service.price === 0 ? (
+                        <span className="absolute top-3 right-3 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                          FREE
+                        </span>
+                      ) : (
+                        <span className="absolute top-3 right-3 bg-blue-600 text-white text-sm font-bold px-3 py-1 rounded-full">
+                          {formatPrice(service.price)}
+                        </span>
+                      )}
+                    </div>
+                    <CardContent className="flex-1 flex flex-col gap-3 p-5">
+                      <h3 className="font-bold text-lg">{service.name}</h3>
+                      {service.description && (
+                        <p className="text-sm text-gray-500 line-clamp-2">
+                          {service.description}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-1 text-sm text-gray-400">
                         <Clock className="w-4 h-4" />
-                        {service.duration} min
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <DollarSign className="w-4 h-4" />
-                        {service.price === 0
-                          ? "Free"
-                          : formatPrice(service.price, service.currency)}
-                      </span>
-                    </div>
-                    <div className="mt-auto pt-2">
-                      <Link href={`/book?service=${service._id}`}>
-                        <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                          Book Now
-                          <ArrowRight className="ml-2 w-4 h-4" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                        <span>{service.duration} minutes</span>
+                      </div>
+                      <div className="mt-auto pt-3">
+                        <Link href={`/book?service=${service._id}`}>
+                          <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                            Book Now
+                            <ArrowRight className="ml-2 w-4 h-4" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -197,43 +239,41 @@ export default async function HomePage() {
       {/* About Section */}
       {professional.bio && (
         <section className="py-20 bg-white">
-          <div className="max-w-4xl mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-10">
-              About {professional.name}
+          <div className="max-w-6xl mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-12">
+              About Us
             </h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="md:col-span-2">
-                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              {/* Image */}
+              <div className="relative h-80 md:h-96 rounded-2xl overflow-hidden shadow-lg">
+                <Image
+                  src={HERO_IMAGE}
+                  alt={`About ${professional.name}`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              {/* Text */}
+              <div>
+                <p className="text-gray-700 leading-relaxed whitespace-pre-line text-lg mb-6">
                   {professional.bio}
                 </p>
-              </div>
-              <div className="space-y-4">
-                {professional.category && (
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-sm font-medium text-gray-500 mb-1">
-                      Specialty
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-gray-50 rounded-xl p-4 text-center">
+                    <p className="text-2xl font-bold text-blue-600">
+                      {services.length}
                     </p>
-                    <p className="font-semibold capitalize">
-                      {professional.category}
-                    </p>
+                    <p className="text-sm text-gray-500">Services</p>
                   </div>
-                )}
-                {professional.location && (
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-sm font-medium text-gray-500 mb-1">
-                      Location
-                    </p>
-                    <p className="font-semibold">{professional.location}</p>
+                  <div className="bg-gray-50 rounded-xl p-4 text-center">
+                    <p className="text-2xl font-bold text-blue-600">8+</p>
+                    <p className="text-sm text-gray-500">Years</p>
                   </div>
-                )}
-                {services.length > 0 && (
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-sm font-medium text-gray-500 mb-1">
-                      Services Offered
-                    </p>
-                    <p className="font-semibold">{services.length}</p>
+                  <div className="bg-gray-50 rounded-xl p-4 text-center">
+                    <p className="text-2xl font-bold text-blue-600">5.0</p>
+                    <p className="text-sm text-gray-500">Rating</p>
                   </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
@@ -242,30 +282,33 @@ export default async function HomePage() {
 
       {/* Events Section */}
       {events.length > 0 && (
-        <section className="py-20 bg-gray-50">
+        <section id="events" className="py-20 bg-gray-50">
           <div className="max-w-6xl mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-4">
-              Upcoming Events
-            </h2>
-            <p className="text-gray-600 text-center mb-12 max-w-xl mx-auto">
-              Join our upcoming events and workshops.
-            </p>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-3">Upcoming Events</h2>
+              <p className="text-gray-600 max-w-xl mx-auto">
+                Join our upcoming events and workshops.
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
               {events.map((event) => {
                 const spotsLeft =
                   event.maxAttendees - event.currentAttendees;
                 return (
-                  <Card key={String(event._id)} className="flex flex-col">
+                  <Card
+                    key={String(event._id)}
+                    className="flex flex-col hover:shadow-lg transition-shadow"
+                  >
                     <CardHeader>
-                      <CardTitle className="text-lg">{event.title}</CardTitle>
+                      <CardTitle className="text-xl">{event.title}</CardTitle>
                     </CardHeader>
                     <CardContent className="flex-1 flex flex-col gap-3">
                       {event.description && (
-                        <p className="text-sm text-muted-foreground line-clamp-2">
+                        <p className="text-sm text-gray-500 line-clamp-2">
                           {event.description}
                         </p>
                       )}
-                      <div className="space-y-2 text-sm text-muted-foreground">
+                      <div className="space-y-2 text-sm text-gray-600">
                         <div className="flex items-center gap-2">
                           <CalendarDays className="w-4 h-4" />
                           <span>
@@ -283,30 +326,29 @@ export default async function HomePage() {
                             {event.startTime} - {event.endTime}
                           </span>
                         </div>
-                        {(event.location || event.meetingLink) && (
+                        {event.location && (
                           <div className="flex items-center gap-2">
                             <MapPin className="w-4 h-4" />
-                            <span>{event.location || "Online"}</span>
+                            <span>{event.location}</span>
                           </div>
                         )}
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4" />
-                          <span>
-                            {spotsLeft > 0
-                              ? `${spotsLeft} spot${spotsLeft !== 1 ? "s" : ""} remaining`
-                              : "Sold out"}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="w-4 h-4" />
-                          <span>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Users className="w-4 h-4" />
+                            <span>
+                              {spotsLeft > 0
+                                ? `${spotsLeft} spot${spotsLeft !== 1 ? "s" : ""} left`
+                                : "Sold out"}
+                            </span>
+                          </div>
+                          <span className="font-bold text-blue-600">
                             {event.price === 0
                               ? "Free"
-                              : formatPrice(event.price, event.currency)}
+                              : formatPrice(event.price)}
                           </span>
                         </div>
                       </div>
-                      <div className="mt-auto pt-2">
+                      <div className="mt-auto pt-3">
                         <Link href={`/events/${event._id}`}>
                           <Button
                             className="w-full bg-blue-600 hover:bg-blue-700"
@@ -328,64 +370,66 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Contact / Location Section */}
-      {(professional.location || professional.phone) && (
-        <section className="py-20 bg-white">
-          <div className="max-w-3xl mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold mb-10">Get in Touch</h2>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
-              {professional.location && (
-                <div className="flex items-center gap-3 text-gray-700">
-                  <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center">
-                    <MapPin className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <span className="text-lg">{professional.location}</span>
-                </div>
-              )}
-              {professional.phone && (
-                <div className="flex items-center gap-3 text-gray-700">
-                  <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center">
-                    <Phone className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <span className="text-lg">{professional.phone}</span>
-                </div>
-              )}
-            </div>
+      {/* Contact / CTA Section */}
+      <section className="py-20 bg-slate-900 text-white">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold mb-4">Ready for a Fresh Look?</h2>
+          <p className="text-slate-400 text-lg mb-8 max-w-xl mx-auto">
+            Book your appointment today and experience the best grooming
+            services in {professional.location || "town"}.
+          </p>
+          <Link href="/book">
+            <Button
+              size="lg"
+              className="bg-blue-600 hover:bg-blue-500 text-lg px-10 py-6 shadow-lg shadow-blue-600/25"
+            >
+              Book Now
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </Button>
+          </Link>
+          <div className="flex items-center justify-center gap-8 mt-10 text-slate-400">
+            {professional.location && (
+              <div className="flex items-center gap-2">
+                <MapPin className="w-5 h-5" />
+                <span>{professional.location}</span>
+              </div>
+            )}
+            {professional.phone && (
+              <div className="flex items-center gap-2">
+                <Phone className="w-5 h-5" />
+                <span>{professional.phone}</span>
+              </div>
+            )}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-white py-10">
+      <footer className="bg-slate-950 text-white py-8">
         <div className="max-w-5xl mx-auto px-4">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
-            <div>
-              <p className="font-semibold text-lg">{professional.name}</p>
-              {professional.title && (
-                <p className="text-sm text-slate-400">{professional.title}</p>
-              )}
-            </div>
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p className="font-semibold">{professional.name}</p>
             <div className="flex gap-6 text-sm text-slate-400">
               <Link href="/book" className="hover:text-white transition-colors">
                 Book
               </Link>
               {events.length > 0 && (
                 <Link
-                  href="/events"
+                  href="#events"
                   className="hover:text-white transition-colors"
                 >
                   Events
                 </Link>
               )}
               <Link
-                href="/client-portal"
+                href="/client/login"
                 className="hover:text-white transition-colors"
               >
                 Client Login
               </Link>
             </div>
           </div>
-          <div className="mt-8 pt-6 border-t border-slate-700 text-center text-sm text-slate-500">
+          <div className="mt-6 pt-4 border-t border-slate-800 text-center text-xs text-slate-600">
             &copy; {new Date().getFullYear()} {professional.name}. All rights
             reserved.
           </div>
